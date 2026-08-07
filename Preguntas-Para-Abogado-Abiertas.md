@@ -193,6 +193,45 @@ de que sirve como estimado provisional (sabiendo que puede no ser exacto para ca
 Copiar este bloque y completarlo cuando un sprint nuevo tenga una decisión legal sin confirmar, una fuente
 que falte, o una respuesta que haya quedado en conflicto con el código ya construido:
 
+## CAMBIOS QUE DEBEN HACERSE POR ERRORES DETECTADOS
+
+
+IPC no aparecen los datos de cada año, ver documento "REGLAS DE CÀLCULO BASTIUM" Pagina 62.
+
+El IPC es muy importante porque es el que define la actualización de la cuota anualmente en casos donde las actas de conciliación dicen que no son por aumento salarial sino por IPC. Eso afecta el càlculo de los intereses, indexaciones, etc. No solo en derecho de familia sino en varios cálculos de áreas jurídicas diferentes, es esencial que el sistema pueda saber què IPC aplica por cada año.
+
+El sistema debe saber què ley aplica )la formula y cifras de cada ley) dependiendo del año del caso. Por ejemplo, si alguien se pensionò en 1997 le aplican las reglas de la Ley 100 de 1993, si se pensionò en 2024 le aplican las reglas de la Ley 797 de 2003; y si se pensionò en mayo de 2026 le aplican las reglas de la ley 2381 de 2024 que entró en vigencia recientemente.
+
+Debe saberse cuando entró en vigencia cada ley para saber cuándo se aplica una ley y sus reglas y cifras. Sobre todo en materia de Derecho Laboral y Seguridad Social donde se ha modificado el Código Sustantivo del Trabajo y el Código de Procedimiento del Trabajo.
+
+_________________
+En la parte de Agregar una obligación, la casilla de "aplica indexación IPC (corrección monetaria) No se ve la casilla para marcarla porque se confunde con el resto del fondo color crema.
+
+La casilla de aplicar indexación de IPC debe aparecer cuando ya estè hecha la liquidación, pues automaticamente se debe indexar. Sòlo cuando estè lista la liquidación por pura pedagogía se le puede presentar una tabla al juez donde no se actualiza con indexación. Pero deberìa agregarse como opción cuando ya estè proyectada la liquidación para elegir si ponerle o quitarle indexación.
+
+La segunda opción de interés sobre capital indexado puede llegar a estar prohibida por el ordenamiento, debe revisarse. Pero en caso que sea legal, también deberìa aparecer al final cuando ya estè lista la liquidación para saber si se agrega con ese valor o no.
+
+Estos son detalles que pueden considerarse, no es grave.
+
+La ventana de agregar obligación es muy grande y no tiene opción para disminuir tamaño, es algo a mejorar porque no aparece la opción de "guardar" a simple vista.
+________________
+En la opción de agregar obligación se puede lograr que al ampliar la ventana no queden barras largas de los campos, sino que sea armonico y la parte de tasa e intereses pase a la derecha de datos básicos, que sea fácil de usar y muy intuitivo, para que funcione en cualquier pantalla sin errores de diseño que afecten la experiencia.
+________________
+Para gastos de vestuario no se repite mes a mes, sino en fechas únicas en el año. Por ejemplo, debe pagar las mudas de ropa en junio, diciembre y el cumpleaños del niño, entonces solo se ponen esas fechas en el calendario y ya el 
+
+___________
+Dado que no solo los niños reciben alimentos, debe al principio decirse si es un niño, si tiene discapacidad, si son alimentos para el cónyuge o para los padres, o para otras personas como donantes.
+En principio todas las obligaciones son perdurables excepto la de los niños, ya que solo se paga hasta que cumplan 25 años o hasta que superen su discapacidad, si su discapacidad es permanente, el alimentante debe pagar eternamente hasta que muera. Lo mismo con los demás alimentos, se pagan por siempre hasta la muerte del beneficiario o del deudor, o hasta que el alimentado supere su condición de vulnerabilidad. Deben haber casillas dependiendo del caso, que surjan dependiendo de cada opción como arboles de decisión.
+______________________
+Al inicio de los casos de Civil/Familia se debe saber la edad del demandante, todos los datos necesarios solo para liquidar. Por ejemplo, ingresar la fecha exacta de nacimiento para que el sistema calcule automaticamente la edad del demandante )o del beneficiario, que es muy importante). Debe preguntarse si hay beneficiario o no, pues el beneficiario es el legitimo acreedor de las deudar por las cuales està luchando el demandado. Si hay beneficiario se debe saber el nombre y fecha de nacimiento para calcular la edad automaticamente. Eso es relevante cuando son cuotas alimentarias para niños sin discapacidad, pues la obligación para a los 18 años si el niño no està estudiando una carrera profesional, técnica o tecnológica. Si està estudiando, la obligación alimentaria continúa solo hasta los 25 años. En cambio, se puede deber alimentos al cónyuge y su fecha de caducidad se determina en la fecha donde supere su condición de vulnerabilidad, por ejemplo si consigue trabajo, si gana la loterìa, etc. Y con los padres es diferente porque se debe hasta la muerte de ellos o la muerte del alimentante. En casos puntuales se pueden deber alimentos a otros como abuelos, donantes, etc.
+
+________________
+En la parte del demandante debe aparecer si es el mismo beneficiario acreedor. Si no es el beneficiario debe preguntar nombre, fecha de nacimiento del beneficiario
+
+_____________
+En el apartado de agregar bono, PARA TODAS LAS CATEGORÌAS DE TODAS LAS AREAS DEL DERECHO DEBE DETECTARSE QUE ES UNA OBLIGACIÒN RECURRENTE Y SACAR EL LISTADO DE OBLIGACIONES GENERADAS MENSUALMENTE A PARTIR DE ESA FECHA. Con ello se podrá seleccionar por rangos o manualmente si se pagaron esas obligaciones enteramente o si se hicieron abonos y contar el pago desde la fecha de pago hacia delante. Por ejemplo, si el acta dice que se deben 150.000 los 5 de cada mes desde el 1 de abril de 2022, debe desplegarse una lista grande de cada obligación de cuota mensual con sus obligaciones derivadas (subobligaciones) de intereses simples. Y si por ejemplo el deudor pagò desde mayo de 2023 hasta noviembre de 2023, se entiende que todas las obligaciones de ese rango ya fueron pagadas. O si por ejemplo sòlo hizo un abono el 1 de abril de 2024 de 500.000 pesos, se entiende que paga la cuota del mes que hizo el abono y las obligaciones inmediatamente anteriores. Es decir, que con ese abono pagò capital de cuota de abril, de marzo con sus intereses, y de febrero pero con solo una parte de sus intereses. El resto de los intereses los sigue debiendo pero como ya pagò el capital de ese mes, entonces no genera màs intereses. O puede pasar que pagò parcialmente capital de una cuota atrasada y no le alcanzó para màs con el abono, entonces se entiende que los intereses que se habían generado hasta esa fecha de pago siguen pero ahora se cuentan los intereses sobre el nuevo capital que es el insoluto que no alcanzó a pagar con el abono que hizo.  
+_____________
+Agregar boton de editar y eliminar obligaciones y abonos.
 ```
 ## Sprint N — [Nombre del sprint]
 
