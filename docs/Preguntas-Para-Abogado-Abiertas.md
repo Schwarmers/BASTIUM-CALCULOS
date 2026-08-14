@@ -66,7 +66,18 @@ se consigue la serie completa desde 1967, sirve también acotar desde qué año 
 misma lógica que se usó con la UVT en el Sprint 14.
 
 **Respuesta del despacho:**
+El motor debe operar siempre sobre el Número Índice (no variación porcentual) para evitar errores de redondeo acumulado en liquidaciones de larga duración.
 
+Instrucciones de Desarrollo:
+
+Gestión de Bases Históricas (Empalme): El DANE maneja bases distintas. El sistema debe soportar múltiples bases y aplicar un Factor de Enlace (FE) para que la serie sea matemáticamente continua.
+Bases a configurar: Base Actual (Diciembre 2018 = 100) y Base Anterior (Diciembre 2008 = 100).
+Fórmula de conversión: Índice_Base2018 = Índice_Base2008 * FE
+El FE se calcula como el cociente entre el índice nuevo y el antiguo en el mes de traslape (Diciembre 2018).
+Estructura de Base de Datos: Crear tabla sys_ipc_indices con campos: periodo_mes (Date), base_referencia (String/Enum), valor_indice (Decimal).
+Motor de Cálculo:
+Fórmula base de actualización: ValorActual = ValorOriginal * (IPC_Final / IPC_Inicial)
+Interpolación: Si la fecha de cálculo no es cierre de mes, el sistema debe aplicar la función de interpolación lineal de días sobre los dos índices mensuales adyacentes.
 
 **Fecha:**
 
@@ -93,7 +104,12 @@ una guía de uso corta para esa persona?
 guía a su nivel técnico).
 
 **Respuesta del despacho:**
+SÍ. Es imperativa una guía. Las variables macroeconómicas (usura, IPC, SMLMV) cambian constantemente.
 
+Instrucciones de Desarrollo:
+
+Perfil de Usuario: La guía debe estar redactada para un Abogado Junior / Estudiante de Consultorio Jurídico.
+Lenguaje de la Guía: Debe usar "campos de hecho" (ej. "Fecha de exigibilidad", "Tasa pactada") con enfoque pedagógico, para que el usuario traduzca el título ejecutivo al software sin errores que generen responsabilidad disciplinaria.
 
 **Fecha:**
 
@@ -158,7 +174,19 @@ manual, y la tabla granular sigue siendo la fuente correcta para el cálculo aut
 exacta.
 
 **Respuesta del despacho:**
+Opción (b). La tabla simple es un "Hard Cap" (filtro de seguridad) para inputs manuales; la tabla granular gobierna el cálculo automático. Rige el Acuerdo PCSJA20-11556 (que actualiza el PSAA16-10554).
 
+Instrucciones de Desarrollo:
+
+Cálculo Automático: Usar la tabla granular del Acuerdo PCSJA20-11556 (18 tipos de proceso × instancia) como base de datos maestra.
+Validación de Input Manual: Implementar la tabla simple como restricción estricta:
+Mínima Cuantía: Bloquear si input > 10%.
+Menor Cuantía: Bloquear si input < 3% o > 7%.
+Mayor Cuantía: Bloquear si input < 1% o > 5%.
+Lógica de Ultraactividad (Tránsito CPC a CGP): El motor debe aplicar la Regla de Aplicación Inmediata (Art. 624 CGP).
+Validar Fecha de la Providencia que impone costas.
+Si la fecha es posterior al CGP (1 de enero de 2016 o gradualidad por distrito), aplicar tabla granular nueva.
+Si la etapa de alegatos concluyó antes del cambio normativo, respetar el trámite de la ley anterior (ultraactividad), pero la liquidación futura se rige por la nueva.
 
 **Fecha:**
 
@@ -185,6 +213,23 @@ si es posible. Si "ejecutiva para todo" es una aproximación razonable mientras 
 de que sirve como estimado provisional (sabiendo que puede no ser exacto para casos puntuales).
 
 **Respuesta del despacho:**
+NO. La acción ejecutiva no es transversal. El motor debe diferenciar prescripción (alegable) de caducidad (de oficio).
+
+Instrucciones de Desarrollo:
+
+Implementar Tabla Determinista (Enum/DB):
+Civil: Ejecutiva (5 años, Art 2536 CC) | Ordinaria (10 años, Art 2536 CC) | Rescisoria (4 años, Art 1954 CC).
+Comercial: Cambiaria Directa (3 años, Art 789 C.Co) | Cambiaria Regreso (1 año, Art 790 C.Co) | Cheque (6 meses, Art 730 C.Co).
+Laboral: Ordinaria/Ejecutiva (3 años, Art 488 CST).
+Familia: Alimentos/Cada cuota (5 años, Art 2536 CC).
+Sancionatorio: Disciplinaria (5 años, Ley 1952 de 2019).
+Honorarios: Cobro (3 años, Art 488 CST / Art 2542 CC).
+Administrativo (CPACA): Reparación Directa (2 años, Art 164) | Nulidad y Restablecimiento (4 meses, Art 164).
+Lógica de Alertas y Cálculo:
+Selector en UI: Al elegir "Área", el sistema autocompleta el plazo según la tabla.
+Cómputo: "Fecha-a-fecha" en calendario gregoriano (Art. 118 CGP). Si el día de vencimiento no existe (ej. 29 de febrero), vence el último día del mes.
+Alertas: Disparar "Caducidad Inminente" cuando falten 30 días. Considerar el término de 1 año para notificar el auto admisorio (inoperancia de la caducidad).
+Ultraactividad: Si el término empezó a correr bajo CPC/Ley 794 de 2003, sigue bajo esa ley. Excepción: Si el CGP establece un plazo más corto, aplicar el CGP contando desde su vigencia, a menos que el plazo viejo venza primero.
 
 
 **Fecha:**
@@ -212,7 +257,20 @@ máximo, un redondeo específico, un mes de corte distinto al 1 de enero, o un p
 correcta y general para este tipo de cláusula, o la corrección exacta si difiere en algún escenario.
 
 **Respuesta del despacho:**
+La fórmula CN = CA + (CA * %V / 100) es correcta como regla general, pero requiere parametrización de excepciones para no fallar.
 
+Instrucciones de Desarrollo:
+
+Regla Base: Reajuste automático cada 1 de enero (Art. 129 Ley 1098/2006). Índice por defecto: IPC año anterior, a menos que el acta indique SMMLV u otro.
+Validaciones y Excepciones (UI obligatoria):
+Tope de Coerción: Hardcodear validación: Ningún embargo por alimentos puede exceder el 50% del salario/prestaciones del deudor.
+Redondeo: El sistema debe operar con precisión decimal completa. PROHIBIDO redondear a múltiplos de $1.000 automáticamente. Solo si el título especifica "ajustado al peso".
+Mes de Corte: Crear campo Fecha_Base_Titulo. Si el acta dice "12 meses desde la firma" (ej. agosto), el motor debe calcular el incremento en agosto, no en enero.
+Porcentaje Parcial: Crear variable Factor_Ponderación (float). Por defecto 1.0. Si el acta pacta "50% del incremento", el factor es 0.5.
+Fórmulas Alternativas (Mora y Cascada):
+Si hay cuotas adeudadas de varios años: C_final = C_base * Π(1+i_t) (Producto de los intereses de cada año transcurrido).
+Interés moratorio: 0.5% mensual (6% anual) sobre el capital indexado en mora: I_mora = Σ(Capital_Mes_Indexado * 0.005 * Meses_Atraso).
+Imputación de Pagos (Orden Jerárquico Estricto): 1º Intereses moratorios -> 2º Gastos de cobranza/costas -> 3º Capital (mes más antiguo).
 
 **Fecha:**
 
@@ -243,7 +301,44 @@ propio, se suma a él, o son mutuamente excluyentes (el abogado elige uno u otro
 ambos).
 
 **Respuesta del despacho:**
+SÍ se ofrece IPC en Tributario, pero no como opción paralela libre; está intrínsecamente ligado al Art. 867-1 del Estatuto Tributario. Son mutuamente excluyentes en su componente inflacionario para evitar doble actualización.
 
+Instrucciones de Desarrollo:
+
+Trigger de Morosidad: Configurar lógica que evalúe los meses de mora.
+SI mora > 36 meses: Aplicar algoritmo del Art. 867-1 E.T. (usando la serie IPC del Sprint 8).
+Lógica por tipo de obligación:
+Sanciones: El motor debe bloquear el cálculo de intereses de mora y aplicar exclusivamente el factor IPC (Art. 867-1 E.T.).
+Impuestos: Aplicar intereses de mora + actualización IPC (Art. 867-1 E.T.).
+Validación de Techo de Usura: En impuestos, el motor debe sumar (Interés de Mora + Factor de Indexación) y validar que la tasa efectiva combinada no supere la Tasa de Usura certificada por la Superfinanciera. Si la supera, el sistema debe caparlo y lanzar una alerta.
+Prohibición de Doble Cobro: Si el sistema detecta que se está usando una tasa que ya contiene protección inflacionaria (ej. intereses sobre UVR), el motor debe bloquear y lanzar error de validación si se intenta aplicar IPC sobre el capital.
+______________
+Comercial: NO (como regla general acumulable a intereses).
+Honorarios: SÍ (compatible con intereses civiles).
+Instrucciones de Desarrollo:
+
+Módulo Comercial:
+Regla de Exclusión (XOR): El sistema debe prohibir la activación simultánea de "Interés Comercial (Mora/Remuneratorio)" e "Indexación IPC".
+El usuario debe elegir: (a) Tasa Comercial (ya incluye inflación) o (b) Capital Indexado + Interés Civil Puro (6% anual), esto último solo si existe pacto expreso en el título.
+Módulo Honorarios:
+Habilitar IPC por defecto.
+Fórmula: Capital_Honorarios * (IPC_Final / IPC_Inicial) + Interés_Civil_6%_Anual(Capital_Actualizado).
+El IPC_Inicial es el del mes en que se hizo exigible la obligación o se presentó la cuenta de cobro.
+Lógica Procesal Transversal (UI):
+De Oficio (Automática): Aplica en etapa declarativa (sentencia de condena) y restitución de mutuos. El motor calcula IPC sin necesidad de checkbox.
+A Petición de Parte (Checkbox): En etapa ejecutiva. Si el título no previó IPC y se cobran intereses comerciales, el sistema lanza alerta de "Improcedente por acumulación".
+________________________
+Laboral: IPC y regla de 360 días cumplen funciones distintas y complementarias, pero IPC es excluyente con intereses moratorios.
+Sancionatorio: Conversión SMLMV/UVT prevalece; IPC es excluyente con el SMLMV actual.
+Instrucciones de Desarrollo:
+
+Módulo Laboral:
+El conteo de días (regla 360 días inclusiva) cuantifica la base temporal. El IPC actualiza el valor resultante.
+Regla de Exclusión: El sistema debe permitir al usuario elegir IPC o Intereses Moratorios, pero lanzar alerta de error "Doble Actualización Prohibida" si se marcan ambos sobre el mismo rubro en el mismo periodo.
+Excepción: Aplicar IPC solo si no hay moratorios (por buena fe probada) o en reliquidaciones pensionales (traer IBL a valor presente).
+Módulo Sancionatorio:
+Prohibición: Bloquear cálculo IPC si el rubro está parametrizado en UVT/SMLMV actualizado a la fecha de pago (el incremento anual del SMMLV ya absorbe la inflación).
+Excepción: El IPC SÍ es válido y necesario si el valor de la multa se ancló a UVT/SMLMV a la fecha del hecho (faltas antiguas). El IPC se aplica desde la exigibilidad (firmeza del acto) hasta el pago efectivo.
 
 **Fecha:**
 
@@ -285,7 +380,18 @@ respuesta es "no, todo el uso hasta ahora fue de prueba/desarrollo", esta pregun
 confirmando que no se recalcula ninguna liquidación histórica.
 
 **Respuesta del despacho:**
+SÍ. Existen liquidaciones entregadas con lógica defectuosa. Se rechaza mantener el error técnico. Es obligatorio recalcular por principios de verdad real y primacía de la realidad (Art. 53 CP).
 
+Instrucciones de Desarrollo:
+
+Auditoría y Marcado (DB): Marcar con flag "OBSOLETO - REQUIERE RECÁLCULO" todas las liquidaciones en base de datos generadas antes del cierre del Sprint 30.
+Log de Diferencias: El sistema debe mostrar al abogado un comparativo numérico: "Diferencia recuperada: +X días / +Y semanas / +$Z pesos".
+Protocolo de Recálculo según estado procesal:
+Expedientes Activos (En trámite): Recálculo obligatorio. El sistema debe permitir generar un "Memorial de Actualización/Corrección" para presentar antes del fallo de instancia.
+Presentadas en Juzgado/CPACA: Generar memorial de corrección de error aritmético (Art. 151 CPACA).
+En Cosa Juzgada (Fallo en firme): NO recalcular en el sistema. Mantener valor por seguridad jurídica, a menos que se active un recurso de revisión por error de hecho manifiesto (vía de hecho).
+Priorización: El recálculo automatizado debe priorizar (ordenar por urgencia) los expedientes donde la alerta de prescripción esté a < 30 días de ocurrir, dado que el cálculo "fecha-a-fecha" es crítico para la validez de la acción.
+Estandarización Pensional: Implementar la Sentencia SL138-2024 como estándar por defecto (días calendario reales), eliminando la base comercial de 360 días exclusivamente para el módulo de densidad pensional, para evitar expropiación de derechos ciertos.
 
 **Fecha:**
 
